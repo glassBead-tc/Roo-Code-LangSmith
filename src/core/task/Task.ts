@@ -40,6 +40,7 @@ import { BrowserSession } from "../../services/browser/BrowserSession"
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
+import { RunTree, startTaskRun, endRun } from "../../telemetry/langsmith"
 import { RepoPerTaskCheckpointService } from "../../services/checkpoints"
 
 // integrations
@@ -112,7 +113,7 @@ export type TaskOptions = {
 export class Task extends EventEmitter<ClineEvents> {
 	readonly taskId: string
 	readonly instanceId: string
-
+	public langsmithRun?: RunTree
 	readonly rootTask: Task | undefined = undefined
 	readonly parentTask: Task | undefined = undefined
 	readonly taskNumber: number
@@ -261,6 +262,23 @@ export class Task extends EventEmitter<ClineEvents> {
 			} else {
 				throw new Error("Either historyItem or task/images must be provided")
 			}
+		}
+
+		// LangSmith: Initialize root run for the task
+		if (this.apiConfiguration) {
+			startTaskRun({
+				taskId: this.taskId,
+				model: (this.apiConfiguration as { model?: string }).model,
+				temperature: (this.apiConfiguration as { temperature?: number }).temperature,
+				workspace: this.workspacePath,
+			})
+				.then((run) => {
+					this.langsmithRun = run
+					// console.log(`LangSmith: Started task run ${run.id} for task ${this.taskId}`)
+				})
+				.catch((error) => {
+					console.error(`LangSmith: Failed to start task run for ${this.taskId}:`, error)
+				})
 		}
 	}
 
@@ -535,14 +553,14 @@ export class Task extends EventEmitter<ClineEvents> {
 					// This is a new and complete message, so add it like normal.
 					const sayTs = Date.now()
 					this.lastMessageTs = sayTs
-					await this.addToClineMessages({ ts: sayTs, type: "say", say: type, text, images })
+					await this.addToClineMessages({ ts: sayTs, type: "say", say: type, text, images, checkpoint })
 				}
 			}
 		} else {
 			// this is a new non-partial message, so add it like normal
 			const sayTs = Date.now()
 			this.lastMessageTs = sayTs
-			await this.addToClineMessages({ ts: sayTs, type: "say", say: type, text, images, checkpoint })
+			await this.addToClineMessages({ ts: sayTs, type: "say", say: type, text, images })
 		}
 	}
 
@@ -855,6 +873,15 @@ export class Task extends EventEmitter<ClineEvents> {
 		this.abort = true
 		this.emit("taskAborted")
 
+		// LangSmith: End the run if it exists, marking as aborted/error
+		if (this.langsmithRun) {
+			const reason = isAbandoned ? "Task abandoned by user" : "Task aborted by user"
+			endRun(this.langsmithRun, { error: new Error(reason) }).catch((e) =>
+				console.error(`LangSmith: Failed to end run on abort for ${this.taskId}:`, e),
+			)
+			this.langsmithRun = undefined // Prevent re-ending
+		}
+
 		// Stop waiting for child task completion.
 		if (this.pauseInterval) {
 			clearInterval(this.pauseInterval)
@@ -929,6 +956,18 @@ export class Task extends EventEmitter<ClineEvents> {
 				nextUserContent = [{ type: "text", text: formatResponse.noToolsUsed() }]
 				this.consecutiveMistakeCount++
 			}
+		}
+
+		// LangSmith: If the loop ended and the task wasn't explicitly aborted, end the run.
+		if (!this.abort && this.langsmithRun) {
+			endRun(this.langsmithRun, {
+				outputs: {
+					status: "Task loop completed",
+					tokenUsage: this.getTokenUsage(),
+					toolUsage: this.getToolUsage(),
+				},
+			}).catch((e) => console.error(`LangSmith: Failed to end run on loop completion for ${this.taskId}:`, e))
+			this.langsmithRun = undefined // Prevent re-ending
 		}
 	}
 
@@ -1475,6 +1514,8 @@ export class Task extends EventEmitter<ClineEvents> {
 			if (Array.isArray(content)) {
 				if (!this.api.getModel().info.supportsImages) {
 					// Convert image blocks to text descriptions.
+					// Note: We can't access the actual image content/url due to API limitations,
+					// but we can indicate that an image was present in the conversation.
 					content = content.map((block) => {
 						if (block.type === "image") {
 							// Convert image blocks to text descriptions.
