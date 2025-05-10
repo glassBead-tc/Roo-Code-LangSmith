@@ -1,4 +1,5 @@
 import { Client, RunTree } from "langsmith"
+export type { RunTree } // ADDED: Export RunTree type
 // LANGSMITH_TRACING_V2=true is usually what the JS SDK client checks for.
 // The plan mentioned LANGSMITH_TRACING=true, this might need alignment later
 // if issues arise, but the Client constructor handles these internally.
@@ -28,12 +29,12 @@ export interface RunOutputs {
  */
 export async function startTaskRun(metadata: TaskRunMetadata): Promise<RunTree> {
 	const runName = `Task-${metadata.taskId}`
-	const run = await client.createRun({
+	const run = (await client.createRun({
 		name: runName,
 		run_type: "chain", // Using "chain" as a general type for a multi-step task
 		inputs: { ...metadata },
 		// extra: { metadata: { ...metadata } } // Alternative way to pass metadata
-	})
+	})) as unknown as RunTree
 	return run
 }
 
@@ -51,11 +52,11 @@ export async function startChildRun(
 	runType: "llm" | "tool" | "chain" | string,
 	inputs: ChildRunInputs,
 ): Promise<RunTree> {
-	const childRun = await parentRun.createChild({
+	const childRun = (await parentRun.createChild({
 		name,
 		run_type: runType,
 		inputs,
-	})
+	})) as unknown as RunTree
 	return childRun
 }
 
