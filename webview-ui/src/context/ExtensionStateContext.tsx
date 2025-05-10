@@ -95,6 +95,13 @@ export interface ExtensionStateContextType extends ExtensionState {
 	terminalCompressProgressBar?: boolean
 	setTerminalCompressProgressBar: (value: boolean) => void
 	setHistoryPreviewCollapsed: (value: boolean) => void
+	// LangSmith telemetry settings
+	langsmithApiKey?: string
+	langsmithProjectName?: string
+	langsmithTracingEnabled?: boolean
+	setLangsmithApiKey: (value: string) => void
+	setLangsmithProjectName: (value: string) => void
+	setLangsmithTracingEnabled: (value: boolean) => void
 }
 
 export const ExtensionStateContext = createContext<ExtensionStateContextType | undefined>(undefined)
@@ -348,6 +355,11 @@ export const ExtensionStateContextProvider: React.FC<{ children: React.ReactNode
 			}),
 		setHistoryPreviewCollapsed: (value) =>
 			setState((prevState) => ({ ...prevState, historyPreviewCollapsed: value })), // Implement the setter
+		// LangSmith setters
+		setLangsmithApiKey: (value) => setState((prevState) => ({ ...prevState, langsmithApiKey: value })),
+		setLangsmithProjectName: (value) => setState((prevState) => ({ ...prevState, langsmithProjectName: value })),
+		setLangsmithTracingEnabled: (value) =>
+			setState((prevState) => ({ ...prevState, langsmithTracingEnabled: value })),
 	}
 
 	return <ExtensionStateContext.Provider value={contextValue}>{children}</ExtensionStateContext.Provider>
