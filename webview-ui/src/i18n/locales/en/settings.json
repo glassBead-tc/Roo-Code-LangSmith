@@ -516,16 +516,16 @@
 		"geminiUrl": "Default: https://generativelanguage.googleapis.com"
 	},
 	"langsmith": {
-		"title": "LangSmith Telemetry",
-		"description": "Configure LangSmith telemetry for tracing task execution, tool usage, and model interactions. This helps with debugging, performance monitoring, and analyzing your AI application.",
-		"apiKeyLabel": "LangSmith API Key",
-		"apiKeyPlaceholder": "Enter LangSmith API Key...",
-		"apiKeyDescription": "API keys are stored securely in VSCode's Secret Storage.",
+		"title": "LangSmith Integration",
+		"description": "Connect to LangSmith for tracing and monitoring your LLM requests.",
+		"apiKeyLabel": "API Key",
+		"apiKeyPlaceholder": "Enter your LangSmith API key",
+		"apiKeyDescription": "Your LangSmith API key is stored securely in VSCode's Secret Storage.",
 		"projectNameLabel": "Project Name",
-		"projectNamePlaceholder": "Enter project name (default: roo-code)",
-		"projectNameDescription": "LangSmith project to group your traces. If left empty, traces will go to the default project.",
-		"tracingEnabledLabel": "Enable Tracing",
-		"tracingEnabledDescription": "When enabled, Roo Code will send execution traces to LangSmith for monitoring and debugging."
+		"projectNamePlaceholder": "Enter your LangSmith project name",
+		"projectNameDescription": "The LangSmith project where traces will be sent.",
+		"tracingEnabledLabel": "Enable LangSmith tracing",
+		"tracingEnabledDescription": "When enabled, Roo will send traces of LLM requests to LangSmith for monitoring and debugging."
 	},
 	"labels": {
 		"customArn": "Custom ARN",

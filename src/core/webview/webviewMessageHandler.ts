@@ -1260,5 +1260,20 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await provider.postStateToWebview()
 			break
 		}
+		case "langsmithApiKey":
+			await updateGlobalState("langsmithApiKey", message.text)
+			await vscode.workspace.getConfiguration("roo-cline").update("langsmithApiKey", message.text, true)
+			await provider.postStateToWebview()
+			break
+		case "langsmithProjectName":
+			await updateGlobalState("langsmithProjectName", message.text)
+			await vscode.workspace.getConfiguration("roo-cline").update("langsmithProjectName", message.text, true)
+			await provider.postStateToWebview()
+			break
+		case "langsmithTracingEnabled":
+			await updateGlobalState("langsmithTracingEnabled", message.bool)
+			await vscode.workspace.getConfiguration("roo-cline").update("langsmithTracingEnabled", message.bool, true)
+			await provider.postStateToWebview()
+			break
 	}
 }

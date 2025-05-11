@@ -169,6 +169,9 @@ type GlobalSettings = {
 		| undefined
 	enhancementApiConfigId?: string | undefined
 	historyPreviewCollapsed?: boolean | undefined
+	langsmithApiKey?: string | undefined
+	langsmithProjectName?: string | undefined
+	langsmithTracingEnabled?: boolean | undefined
 }
 
 export type { GlobalSettings }

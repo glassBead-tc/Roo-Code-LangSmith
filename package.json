@@ -295,6 +295,21 @@
 					],
 					"description": "%commands.allowedCommands.description%"
 				},
+				"roo-cline.langsmithApiKey": {
+					"type": "string",
+					"default": "",
+					"description": "API key for LangSmith tracing"
+				},
+				"roo-cline.langsmithProjectName": {
+					"type": "string",
+					"default": "roo-code",
+					"description": "Project name for LangSmith tracing"
+				},
+				"roo-cline.langsmithTracingEnabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable LangSmith tracing"
+				},
 				"roo-cline.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
@@ -392,12 +407,13 @@
 		"get-folder-size": "^5.0.0",
 		"i18next": "^24.2.2",
 		"isbinaryfile": "^5.0.2",
-		"langsmith": "^0.1.0",
+		"langsmith": "^0.1.68",
 		"mammoth": "^1.8.0",
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
 		"node-cache": "^5.1.2",
 		"node-ipc": "^12.0.0",
-		"openai": "^4.78.1",
+		"openai": "^4.98.0",
+		"openevals": "^0.1.0",
 		"os-name": "^6.0.0",
 		"p-wait-for": "^5.0.2",
 		"pdf-parse": "^1.1.1",

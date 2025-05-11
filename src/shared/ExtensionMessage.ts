@@ -168,6 +168,9 @@ export type ExtensionState = Pick<
 	| "customModePrompts"
 	| "customSupportPrompts"
 	| "enhancementApiConfigId"
+	| "langsmithApiKey"
+	| "langsmithProjectName"
+	| "langsmithTracingEnabled"
 > & {
 	version: string
 	clineMessages: ClineMessage[]

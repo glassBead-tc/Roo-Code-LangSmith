@@ -726,6 +726,11 @@ export const globalSettingsSchema = z.object({
 	customSupportPrompts: customSupportPromptsSchema.optional(),
 	enhancementApiConfigId: z.string().optional(),
 	historyPreviewCollapsed: z.boolean().optional(),
+
+	// LangSmith settings
+	langsmithApiKey: z.string().optional(),
+	langsmithProjectName: z.string().optional(),
+	langsmithTracingEnabled: z.boolean().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
@@ -805,6 +810,11 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	enhancementApiConfigId: undefined,
 	cachedChromeHostUrl: undefined,
 	historyPreviewCollapsed: undefined,
+
+	// LangSmith settings
+	langsmithApiKey: undefined,
+	langsmithProjectName: undefined,
+	langsmithTracingEnabled: undefined,
 }
 
 export const GLOBAL_SETTINGS_KEYS = Object.keys(globalSettingsRecord) as Keys<GlobalSettings>[]

@@ -11,18 +11,18 @@ import React, {
 } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import {
-	CheckCheck,
-	SquareMousePointer,
 	Webhook,
-	GitBranch,
-	Bell,
-	Database,
-	SquareTerminal,
-	FlaskConical,
-	AlertTriangle,
-	Globe,
 	Info,
 	Activity,
+	AlertTriangle,
+	Shield,
+	Globe,
+	SaveAll,
+	Bell,
+	Layers,
+	Terminal,
+	Beaker,
+	Languages,
 } from "lucide-react"
 
 import { ExperimentId } from "@roo/shared/experiments"
@@ -362,14 +362,14 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 
 	const sections = [
 		{ id: "providers", icon: Webhook },
-		{ id: "autoApprove", icon: CheckCheck },
-		{ id: "browser", icon: SquareMousePointer },
-		{ id: "checkpoints", icon: GitBranch },
+		{ id: "autoApprove", icon: Shield },
+		{ id: "browser", icon: Globe },
+		{ id: "checkpoints", icon: SaveAll },
 		{ id: "notifications", icon: Bell },
-		{ id: "contextManagement", icon: Database },
-		{ id: "terminal", icon: SquareTerminal },
-		{ id: "experimental", icon: FlaskConical },
-		{ id: "language", icon: Globe },
+		{ id: "contextManagement", icon: Layers },
+		{ id: "terminal", icon: Terminal },
+		{ id: "experimental", icon: Beaker },
+		{ id: "language", icon: Languages },
 		{ id: "langsmith", icon: Activity },
 		{ id: "about", icon: Info },
 	] as const
