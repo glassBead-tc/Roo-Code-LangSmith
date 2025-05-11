@@ -36,3 +36,7 @@ logs
 
 # Vite development
 .vite-port
+
+**/.claude/settings.local.json
+
+tmp_extract/

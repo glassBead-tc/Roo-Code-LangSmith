@@ -11,18 +11,18 @@ import React, {
 } from "react"
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import {
-	CheckCheck,
-	SquareMousePointer,
 	Webhook,
-	GitBranch,
-	Bell,
-	Database,
-	SquareTerminal,
-	FlaskConical,
-	AlertTriangle,
-	Globe,
 	Info,
-	LucideIcon,
+	Activity,
+	AlertTriangle,
+	Shield,
+	Globe,
+	SaveAll,
+	Bell,
+	Layers,
+	Terminal,
+	Beaker,
+	Languages,
 } from "lucide-react"
 
 import { ExperimentId } from "@roo/shared/experiments"
@@ -55,6 +55,7 @@ import ApiOptions from "./ApiOptions"
 import { AutoApproveSettings } from "./AutoApproveSettings"
 import { BrowserSettings } from "./BrowserSettings"
 import { CheckpointSettings } from "./CheckpointSettings"
+import LangSmithSettings from "./LangSmithSettings"
 import { NotificationSettings } from "./NotificationSettings"
 import { ContextManagementSettings } from "./ContextManagementSettings"
 import { TerminalSettings } from "./TerminalSettings"
@@ -85,6 +86,7 @@ const sectionNames = [
 	"terminal",
 	"experimental",
 	"language",
+	"langsmith",
 	"about",
 ] as const
 
@@ -99,7 +101,16 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 	const { t } = useAppTranslation()
 
 	const extensionState = useExtensionState()
-	const { currentApiConfigName, listApiConfigMeta, uriScheme, version, settingsImportedAt } = extensionState
+	const {
+		currentApiConfigName,
+		listApiConfigMeta,
+		uriScheme,
+		version,
+		settingsImportedAt,
+		langsmithApiKey,
+		langsmithProjectName,
+		langsmithTracingEnabled,
+	} = extensionState
 
 	const [isDiscardDialogShow, setDiscardDialogShow] = useState(false)
 	const [isChangeDetected, setChangeDetected] = useState(false)
@@ -282,6 +293,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "alwaysAllowSubtasks", bool: alwaysAllowSubtasks })
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
+
+			// LangSmith settings
+			vscode.postMessage({ type: "langsmithProjectName", text: langsmithProjectName })
+			vscode.postMessage({ type: "langsmithTracingEnabled", bool: langsmithTracingEnabled })
+			vscode.postMessage({ type: "langsmithApiKey", text: langsmithApiKey })
+
 			setChangeDetected(false)
 		}
 	}
@@ -349,21 +366,19 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 		}
 	}, [])
 
-	const sections: { id: SectionName; icon: LucideIcon }[] = useMemo(
-		() => [
-			{ id: "providers", icon: Webhook },
-			{ id: "autoApprove", icon: CheckCheck },
-			{ id: "browser", icon: SquareMousePointer },
-			{ id: "checkpoints", icon: GitBranch },
-			{ id: "notifications", icon: Bell },
-			{ id: "contextManagement", icon: Database },
-			{ id: "terminal", icon: SquareTerminal },
-			{ id: "experimental", icon: FlaskConical },
-			{ id: "language", icon: Globe },
-			{ id: "about", icon: Info },
-		],
-		[], // No dependencies needed now
-	)
+	const sections = [
+		{ id: "providers", icon: Webhook },
+		{ id: "autoApprove", icon: Shield },
+		{ id: "browser", icon: Globe },
+		{ id: "checkpoints", icon: SaveAll },
+		{ id: "notifications", icon: Bell },
+		{ id: "contextManagement", icon: Layers },
+		{ id: "terminal", icon: Terminal },
+		{ id: "experimental", icon: Beaker },
+		{ id: "language", icon: Languages },
+		{ id: "langsmith", icon: Activity },
+		{ id: "about", icon: Info },
+	] as const
 
 	// Update target section logic to set active tab
 	useEffect(() => {
@@ -632,6 +647,16 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 					{/* Language Section */}
 					{activeTab === "language" && (
 						<LanguageSettings language={language || "en"} setCachedStateField={setCachedStateField} />
+					)}
+
+					{/* LangSmith Section */}
+					{activeTab === "langsmith" && (
+						<LangSmithSettings
+							langsmithApiKey={langsmithApiKey}
+							langsmithProjectName={langsmithProjectName}
+							langsmithTracingEnabled={langsmithTracingEnabled}
+							setCachedStateField={setCachedStateField}
+						/>
 					)}
 
 					{/* About Section */}

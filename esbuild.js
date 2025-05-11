@@ -188,13 +188,13 @@ const extensionConfig = {
 }
 
 const workerConfig = {
+	entryPoints: fs
+		.readdirSync(path.join(__dirname, "src", "workers"))
+		.filter((file) => file.endsWith(".ts"))
+		.map((file) => path.join("src", "workers", file)),
 	bundle: true,
 	minify: production,
 	sourcemap: !production,
-	logLevel: "silent",
-	entryPoints: ["src/workers/countTokens.ts"],
-	format: "cjs",
-	sourcesContent: false,
 	platform: "node",
 	outdir: "dist/workers",
 }

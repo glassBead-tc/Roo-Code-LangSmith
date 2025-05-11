@@ -726,6 +726,11 @@ export const globalSettingsSchema = z.object({
 	customSupportPrompts: customSupportPromptsSchema.optional(),
 	enhancementApiConfigId: z.string().optional(),
 	historyPreviewCollapsed: z.boolean().optional(),
+
+	// LangSmith settings
+	langsmithApiKey: z.string().optional(),
+	langsmithProjectName: z.string().optional(),
+	langsmithTracingEnabled: z.boolean().optional(),
 })
 
 export type GlobalSettings = z.infer<typeof globalSettingsSchema>
@@ -805,6 +810,11 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 	enhancementApiConfigId: undefined,
 	cachedChromeHostUrl: undefined,
 	historyPreviewCollapsed: undefined,
+
+	// LangSmith settings
+	langsmithApiKey: undefined,
+	langsmithProjectName: undefined,
+	langsmithTracingEnabled: undefined,
 }
 
 export const GLOBAL_SETTINGS_KEYS = Object.keys(globalSettingsRecord) as Keys<GlobalSettings>[]
@@ -815,11 +825,21 @@ export const GLOBAL_SETTINGS_KEYS = Object.keys(globalSettingsRecord) as Keys<Gl
 
 export const rooCodeSettingsSchema = providerSettingsSchema.merge(globalSettingsSchema)
 
-export type RooCodeSettings = GlobalSettings & ProviderSettings
+export type RooCodeSettings = GlobalSettings &
+	ProviderSettings & {
+		langsmithApiKey?: string
+	}
 
 /**
  * SecretState
  */
+// Define standalone secrets schema for secrets that are not part of ProviderSettings
+export const standaloneSecretSchema = z.object({
+	langsmithApiKey: z.string().optional(),
+	// Add other future standalone secrets here
+})
+
+export type StandaloneSecretState = z.infer<typeof standaloneSecretSchema>
 
 export type SecretState = Pick<
 	ProviderSettings,
@@ -840,7 +860,8 @@ export type SecretState = Pick<
 	| "groqApiKey"
 	| "chutesApiKey"
 	| "litellmApiKey"
->
+> &
+	StandaloneSecretState
 
 type SecretStateRecord = Record<Keys<SecretState>, undefined>
 
@@ -862,6 +883,8 @@ const secretStateRecord: SecretStateRecord = {
 	groqApiKey: undefined,
 	chutesApiKey: undefined,
 	litellmApiKey: undefined,
+	// Standalone secrets
+	langsmithApiKey: undefined,
 }
 
 export const SECRET_STATE_KEYS = Object.keys(secretStateRecord) as Keys<SecretState>[]
@@ -872,8 +895,11 @@ export const isSecretStateKey = (key: string): key is Keys<SecretState> =>
 /**
  * GlobalState
  */
-
-export type GlobalState = Omit<RooCodeSettings, Keys<SecretState>>
+export type GlobalState = Omit<RooCodeSettings, Keys<SecretState>> & {
+	langsmithApiKey?: string
+	langsmithProjectName?: string
+	langsmithTracingEnabled?: boolean
+}
 
 export const GLOBAL_STATE_KEYS = [...GLOBAL_SETTINGS_KEYS, ...PROVIDER_SETTINGS_KEYS].filter(
 	(key: Keys<RooCodeSettings>) => !SECRET_STATE_KEYS.includes(key as Keys<SecretState>),

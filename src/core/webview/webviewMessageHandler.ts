@@ -8,6 +8,7 @@ import { Language, ProviderSettings } from "../../schemas"
 import { changeLanguage, t } from "../../i18n"
 import { RouterName, toRouterName } from "../../shared/api"
 import { supportPrompt } from "../../shared/support-prompt"
+import { configureLangSmith } from "../../telemetry/langsmith"
 
 import { checkoutDiffPayloadSchema, checkoutRestorePayloadSchema, WebviewMessage } from "../../shared/WebviewMessage"
 import { checkExistKey } from "../../shared/checkExistApiConfig"
@@ -591,6 +592,32 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			break
 		case "fuzzyMatchThreshold":
 			await updateGlobalState("fuzzyMatchThreshold", message.value)
+			await provider.postStateToWebview()
+			break
+		case "langsmithApiKey":
+			await provider.contextProxy.storeSecret("langsmithApiKey", message.text)
+
+			// Reconfigure LangSmith client with new API key
+			configureLangSmith({
+				apiKey: message.text,
+				projectName: provider.contextProxy.getGlobalState("langsmithProjectName", "roo-code"),
+			})
+
+			await provider.postStateToWebview()
+			break
+		case "langsmithProjectName":
+			await updateGlobalState("langsmithProjectName", message.text)
+
+			// Reconfigure LangSmith client with new project name
+			configureLangSmith({
+				apiKey: provider.contextProxy.getSecret("langsmithApiKey"),
+				projectName: message.text,
+			})
+
+			await provider.postStateToWebview()
+			break
+		case "langsmithTracingEnabled":
+			await updateGlobalState("langsmithTracingEnabled", message.bool)
 			await provider.postStateToWebview()
 			break
 		case "updateVSCodeSetting": {
@@ -1254,5 +1281,23 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await provider.postStateToWebview()
 			break
 		}
+		case "langsmithProjectName":
+			await updateGlobalState("langsmithProjectName", message.text)
+			await vscode.workspace.getConfiguration("roo-cline").update("langsmithProjectName", message.text, true)
+			await provider.postStateToWebview()
+			break
+		case "langsmithTracingEnabled":
+			await updateGlobalState("langsmithTracingEnabled", message.bool)
+			await vscode.workspace.getConfiguration("roo-cline").update("langsmithTracingEnabled", message.bool, true)
+			await provider.postStateToWebview()
+			break
+		case "langsmithApiKey": // Added case for LangSmith API Key
+			if (typeof message.text === "string") {
+				await provider.context.secrets.store("langsmithApiKey", message.text)
+				// Consider if we need to signal back to the webview. For secrets, avoid sending the secret itself.
+				// Maybe just a confirmation or update UI to show key is 'set'.
+				await provider.postStateToWebview() // This might refresh the UI state
+			}
+			break
 	}
 }

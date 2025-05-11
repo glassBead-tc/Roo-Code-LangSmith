@@ -30,6 +30,7 @@
 		"terminal": "Terminal",
 		"experimental": "Experimental",
 		"language": "Language",
+		"langsmith": "LangSmith",
 		"about": "About Roo Code"
 	},
 	"autoApprove": {
@@ -513,6 +514,18 @@
 		"ollamaUrl": "Default: http://localhost:11434",
 		"lmStudioUrl": "Default: http://localhost:1234",
 		"geminiUrl": "Default: https://generativelanguage.googleapis.com"
+	},
+	"langsmith": {
+		"title": "LangSmith Integration",
+		"description": "Connect to LangSmith for tracing and monitoring your LLM requests.",
+		"apiKeyLabel": "API Key",
+		"apiKeyPlaceholder": "Enter your LangSmith API key",
+		"apiKeyDescription": "Your LangSmith API key is stored securely in VSCode's Secret Storage.",
+		"projectNameLabel": "Project Name",
+		"projectNamePlaceholder": "Enter your LangSmith project name",
+		"projectNameDescription": "The LangSmith project where traces will be sent.",
+		"tracingEnabledLabel": "Enable LangSmith tracing",
+		"tracingEnabledDescription": "When enabled, Roo will send traces of LLM requests to LangSmith for monitoring and debugging."
 	},
 	"labels": {
 		"customArn": "Custom ARN",

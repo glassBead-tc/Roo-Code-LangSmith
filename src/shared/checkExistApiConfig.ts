@@ -11,7 +11,11 @@ export function checkExistKey(config: ProviderSettings | undefined) {
 	}
 
 	// Check all secret keys from the centralized SECRET_STATE_KEYS array.
-	const hasSecretKey = SECRET_STATE_KEYS.some((key) => config[key] !== undefined)
+	// Some standalone secret keys (e.g. "langsmithApiKey") are not part of ProviderSettings.
+	// Use a runtime key check to avoid TypeScript index errors.
+	const hasSecretKey = SECRET_STATE_KEYS.some(
+		(key) => key in config && (config as Record<string, unknown>)[key] !== undefined,
+	)
 
 	// Check additional non-secret configuration properties
 	const hasOtherConfig = [

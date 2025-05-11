@@ -1261,6 +1261,9 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			maxReadFileLine,
 			terminalCompressProgressBar,
 			historyPreviewCollapsed,
+			langsmithApiKey,
+			langsmithProjectName,
+			langsmithTracingEnabled,
 		} = await this.getState()
 
 		const telemetryKey = process.env.POSTHOG_API_KEY
@@ -1271,6 +1274,12 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		// Check if there's a system prompt override for the current mode
 		const currentMode = mode ?? defaultModeSlug
 		const hasSystemPromptOverride = await this.hasFileBasedSystemPromptOverride(currentMode)
+
+		// Get LangSmith settings from VSCode configuration
+		const langsmithConfig = vscode.workspace.getConfiguration("roo-cline")
+		const langsmithApiKeyFromConfig = langsmithConfig.get<string>("langsmithApiKey") || ""
+		const langsmithProjectNameFromConfig = langsmithConfig.get<string>("langsmithProjectName") || "roo-code"
+		const langsmithTracingEnabledFromConfig = langsmithConfig.get<boolean>("langsmithTracingEnabled") || false
 
 		return {
 			version: this.context.extension?.packageJSON?.version ?? "",
@@ -1348,6 +1357,9 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			terminalCompressProgressBar: terminalCompressProgressBar ?? true,
 			hasSystemPromptOverride,
 			historyPreviewCollapsed: historyPreviewCollapsed ?? false,
+			langsmithApiKey: langsmithApiKey ?? langsmithApiKeyFromConfig,
+			langsmithProjectName: langsmithProjectName ?? langsmithProjectNameFromConfig,
+			langsmithTracingEnabled: langsmithTracingEnabled ?? langsmithTracingEnabledFromConfig,
 		}
 	}
 
@@ -1438,6 +1450,9 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			showRooIgnoredFiles: stateValues.showRooIgnoredFiles ?? true,
 			maxReadFileLine: stateValues.maxReadFileLine ?? 500,
 			historyPreviewCollapsed: stateValues.historyPreviewCollapsed ?? false,
+			langsmithApiKey: stateValues.langsmithApiKey,
+			langsmithProjectName: stateValues.langsmithProjectName,
+			langsmithTracingEnabled: stateValues.langsmithTracingEnabled,
 		}
 	}
 
