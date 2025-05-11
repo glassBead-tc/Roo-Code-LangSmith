@@ -55,6 +55,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
 
+	// Log LangSmith telemetry status if environment variables are set
+	if (process.env.LANGSMITH_API_KEY && process.env.LANGSMITH_TRACING === "true") {
+		// Just import the module to ensure it's loaded - this initializes the client
+		await import("./telemetry/langsmith")
+		const projectName = process.env.LANGSMITH_PROJECT || "roo-code-vscode"
+		outputChannel.appendLine(`LangSmith telemetry enabled with project: ${projectName}`)
+	} else {
+		outputChannel.appendLine(
+			"LangSmith telemetry is disabled (missing LANGSMITH_API_KEY or LANGSMITH_TRACING=true)",
+		)
+	}
+
 	// Initialize telemetry service after environment variables are loaded.
 	telemetryService.initialize()
 
@@ -134,6 +146,11 @@ export async function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export async function deactivate() {
 	outputChannel.appendLine("Roo-Code extension deactivated")
+	// Log LangSmith telemetry shutdown
+	if (process.env.LANGSMITH_API_KEY && process.env.LANGSMITH_TRACING === "true") {
+		outputChannel.appendLine("LangSmith telemetry shutting down")
+		// No explicit cleanup needed - the LangSmith client handles this internally
+	}
 	// Clean up MCP server manager
 	await McpServerManager.cleanup(extensionContext)
 	telemetryService.shutdown()
