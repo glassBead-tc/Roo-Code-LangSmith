@@ -55,16 +55,37 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
 
-	// Log LangSmith telemetry status if environment variables are set
-	if (process.env.LANGSMITH_API_KEY && process.env.LANGSMITH_TRACING === "true") {
-		// Just import the module to ensure it's loaded - this initializes the client
-		await import("./telemetry/langsmith")
-		const projectName = process.env.LANGSMITH_PROJECT || "roo-code-vscode"
-		outputChannel.appendLine(`LangSmith telemetry enabled with project: ${projectName}`)
-	} else {
+	// Initialize ContextProxy to access settings
+	const contextProxy = await ContextProxy.getInstance(context)
+
+	// Import LangSmith module with configureLangSmith function
+	const { configureLangSmith } = await import("./telemetry/langsmith")
+
+	// Check for LangSmith API key in settings or environment variables
+	const apiKeyFromSettings = contextProxy.getSecret("langsmithApiKey")
+	const apiKeyFromEnv = process.env.LANGSMITH_API_KEY
+	const tracingEnabled =
+		contextProxy.getGlobalState("langsmithTracingEnabled", false) || process.env.LANGSMITH_TRACING === "true"
+
+	if ((apiKeyFromSettings || apiKeyFromEnv) && tracingEnabled) {
+		// Configure LangSmith with API key from settings or environment
+		configureLangSmith({
+			apiKey: apiKeyFromSettings || apiKeyFromEnv,
+			projectName:
+				contextProxy.getGlobalState("langsmithProjectName", "roo-code") ||
+				process.env.LANGSMITH_PROJECT ||
+				"roo-code-vscode",
+		})
+
 		outputChannel.appendLine(
-			"LangSmith telemetry is disabled (missing LANGSMITH_API_KEY or LANGSMITH_TRACING=true)",
+			`LangSmith telemetry enabled with project: ${
+				contextProxy.getGlobalState("langsmithProjectName", "roo-code") ||
+				process.env.LANGSMITH_PROJECT ||
+				"roo-code-vscode"
+			}`,
 		)
+	} else {
+		outputChannel.appendLine("LangSmith telemetry is disabled (missing API key or tracing not enabled)")
 	}
 
 	// Initialize telemetry service after environment variables are loaded.
@@ -84,7 +105,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		context.globalState.update("allowedCommands", defaultCommands)
 	}
 
-	const contextProxy = await ContextProxy.getInstance(context)
+	// contextProxy already initialized above
 	const provider = new ClineProvider(context, outputChannel, "sidebar", contextProxy)
 	telemetryService.setProvider(provider)
 

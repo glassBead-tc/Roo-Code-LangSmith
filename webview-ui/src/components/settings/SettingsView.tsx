@@ -293,6 +293,12 @@ const SettingsView = forwardRef<SettingsViewRef, SettingsViewProps>(({ onDone, t
 			vscode.postMessage({ type: "alwaysAllowSubtasks", bool: alwaysAllowSubtasks })
 			vscode.postMessage({ type: "upsertApiConfiguration", text: currentApiConfigName, apiConfiguration })
 			vscode.postMessage({ type: "telemetrySetting", text: telemetrySetting })
+
+			// LangSmith settings
+			vscode.postMessage({ type: "langsmithProjectName", text: langsmithProjectName })
+			vscode.postMessage({ type: "langsmithTracingEnabled", bool: langsmithTracingEnabled })
+			vscode.postMessage({ type: "langsmithApiKey", text: langsmithApiKey })
+
 			setChangeDetected(false)
 		}
 	}

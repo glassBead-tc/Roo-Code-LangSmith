@@ -4,7 +4,46 @@ export type { RunTree } // ADDED: Export RunTree type
 // The plan mentioned LANGSMITH_TRACING=true, this might need alignment later
 // if issues arise, but the Client constructor handles these internally.
 
-const client = new Client()
+// Configuration for LangSmith client
+interface LangSmithConfig {
+	apiKey?: string
+	projectName?: string
+}
+
+// Store configuration without initializing client
+let langSmithConfig: LangSmithConfig = {}
+let clientInstance: Client | null = null
+
+/**
+ * Configure the LangSmith client with API key and project name.
+ * This should be called before any LangSmith operations.
+ * @param config Configuration options for LangSmith
+ */
+export function configureLangSmith(config: LangSmithConfig): void {
+	langSmithConfig = { ...config }
+	// Always reset client instance so it will be recreated with new config
+	clientInstance = null
+}
+
+/**
+ * Gets or creates a LangSmith client instance.
+ * This lazy initialization avoids circular dependency with the API key.
+ * @returns The LangSmith client instance
+ */
+export function getClient(): Client {
+	if (!clientInstance) {
+		if (langSmithConfig.apiKey) {
+			// Create client with explicit config if available
+			clientInstance = new Client({
+				apiKey: langSmithConfig.apiKey,
+			})
+		} else {
+			// Fall back to environment variables
+			clientInstance = new Client()
+		}
+	}
+	return clientInstance
+}
 
 export interface TaskRunMetadata {
 	taskId: string
@@ -29,7 +68,7 @@ export interface RunOutputs {
  */
 export async function startTaskRun(metadata: TaskRunMetadata): Promise<RunTree> {
 	const runName = `Task-${metadata.taskId}`
-	const run = (await client.createRun({
+	const run = (await getClient().createRun({
 		name: runName,
 		run_type: "chain", // Using "chain" as a general type for a multi-step task
 		inputs: { ...metadata },
