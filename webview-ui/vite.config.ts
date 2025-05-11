@@ -64,6 +64,12 @@ export default defineConfig({
 				chunkFileNames: `assets/[name].js`,
 				assetFileNames: `assets/[name].[ext]`,
 			},
+			treeshake: {
+				moduleSideEffects: (id) => {
+					// Preserve the LangSmith component by returning true for its path
+					return id.includes("components/settings/LangSmithSettings.tsx")
+				},
+			},
 		},
 	},
 	server: {
