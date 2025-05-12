@@ -40,3 +40,9 @@ logs
 **/.claude/settings.local.json
 
 tmp_extract/
+
+querylist.json
+
+.roomodes
+
+CLAUDE.md
