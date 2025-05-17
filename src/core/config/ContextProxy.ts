@@ -42,7 +42,7 @@ export class ContextProxy {
 	constructor(context: vscode.ExtensionContext) {
 		this.originalContext = context
 		this.stateCache = {
-			langsmithProjectName: "roo-code",
+			langsmithProjectName: "roo-code-langsmith",
 			langsmithTracingEnabled: false,
 		}
 		this.secretCache = {}
@@ -129,7 +129,7 @@ export class ContextProxy {
 	private getAllGlobalState(): GlobalState {
 		const state = Object.fromEntries(GLOBAL_STATE_KEYS.map((key) => [key, this.getGlobalState(key)]))
 		// Ensure LangSmith settings have default values
-		if (state.langsmithProjectName === undefined) state.langsmithProjectName = "roo-code"
+		if (state.langsmithProjectName === undefined) state.langsmithProjectName = "roo-code-langsmith"
 		if (state.langsmithTracingEnabled === undefined) state.langsmithTracingEnabled = false
 		return state
 	}
@@ -269,7 +269,7 @@ export class ContextProxy {
 	public async resetAllState() {
 		// Clear in-memory caches
 		this.stateCache = {
-			langsmithProjectName: "roo-code",
+			langsmithProjectName: "roo-code-langsmith",
 			langsmithTracingEnabled: false,
 		}
 		this.secretCache = {}

@@ -600,7 +600,7 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			// Reconfigure LangSmith client with new API key
 			configureLangSmith({
 				apiKey: message.text,
-				projectName: provider.contextProxy.getGlobalState("langsmithProjectName", "roo-code"),
+				projectName: provider.contextProxy.getGlobalState("langsmithProjectName", "roo-code-langsmith"),
 			})
 
 			await provider.postStateToWebview()

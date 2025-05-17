@@ -48,9 +48,9 @@ let extensionContext: vscode.ExtensionContext
 // Your extension is activated the very first time the command is executed.
 export async function activate(context: vscode.ExtensionContext) {
 	extensionContext = context
-	outputChannel = vscode.window.createOutputChannel("Roo-Code")
+	outputChannel = vscode.window.createOutputChannel("Roo-Code-LangSmith")
 	context.subscriptions.push(outputChannel)
-	outputChannel.appendLine("Roo-Code extension activated")
+	outputChannel.appendLine("Roo-Code-LangSmith extension activated")
 
 	// Migrate old settings to new
 	await migrateSettings(context, outputChannel)
@@ -72,14 +72,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		configureLangSmith({
 			apiKey: apiKeyFromSettings || apiKeyFromEnv,
 			projectName:
-				contextProxy.getGlobalState("langsmithProjectName", "roo-code") ||
+				contextProxy.getGlobalState("langsmithProjectName", "roo-code-langsmith") ||
 				process.env.LANGSMITH_PROJECT ||
 				"roo-code-vscode",
 		})
 
 		outputChannel.appendLine(
 			`LangSmith telemetry enabled with project: ${
-				contextProxy.getGlobalState("langsmithProjectName", "roo-code") ||
+				contextProxy.getGlobalState("langsmithProjectName", "roo-code-langsmith") ||
 				process.env.LANGSMITH_PROJECT ||
 				"roo-code-vscode"
 			}`,
